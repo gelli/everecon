@@ -1,0 +1,109 @@
+{% extends "partials/base.html" %}
+
+{% load style_filters %}
+
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+  <div class="container">
+    <h1 class="display-3">Gate Camps on Route</h1>
+    <!-- <p>This is a template for a simple marketing or informational website. It includes a large callout called a
+      jumbotron and three supporting pieces of content. Use it as a starting point to create something more
+      unique.</p> -->
+
+
+    <form role="form" method="post">
+      {% csrf_token %}
+
+      <div class="row">
+        <div class="col">
+          <!-- route start system -->
+          <label class="sr-only" for="{{ form.from_name.id_for_label }}">{{ form.from_name.label_tag }}</label>
+          <div class="input-group mb-2 mr-sm-2">
+            {% if form.from_name.errors %}
+              {{ form.from_name|addclass:"form-control mb-2 mr-sm-2 is-invalid" }}
+              <div class="invalid-feedback">
+                {% for error in form.from_name.errors %}
+                  {{ error|escape }}
+                {% endfor %}
+              </div>
+            {% else %}
+            {{ form.from_name|addclass:"form-control mb-2 mr-sm-2" }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="col">
+
+          <!-- route destination system -->
+          <label class="sr-only" for="{{ form.to_name.id_for_label }}">{{ form.to_name.label_tag }}</label>
+          <div class="input-group mb-2 mr-sm-2">
+            {% if form.to_name.errors %}
+              {{ form.to_name|addclass:"form-control mb-2 mr-sm-2 is-invalid" }}
+              <div class="invalid-feedback">
+                {% for error in form.to_name.errors %}
+                  {{ error|escape }}
+                {% endfor %}
+              </div>
+            {% else %}
+            {{ form.to_name|addclass:"form-control mb-2 mr-sm-2" }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="col">
+          <button type="submit" class="btn btn-primary mb-2">Submit</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="flag" id="flag_shortest" value="shortest" checked>
+            <label class="form-check-label" for="flag_shortest">
+              Shortest
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="flag" id="flag_secure" value="secure">
+            <label class="form-check-label" for="flag_secure">
+              Secure
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="flag" id="flag_insecure" value="insecure">
+            <label class="form-check-label" for="flag_insecure">
+              Insecure
+            </label>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+    </form>
+  </div>
+</div>
+
+{% if waypoints %}
+{% include "partials/sys_table.html" %}
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(function() {
+    $("#from_name").autocomplete({
+      source: "/api/systems/",
+      minLength: 2
+    });
+
+    $("#to_name").autocomplete({
+      source: "/api/systems/",
+      minLength: 2
+    });
+
+  });
+</script>
+{% endblock %}
