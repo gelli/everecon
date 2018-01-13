@@ -19,6 +19,7 @@ class SolarSystem(models.Model):
     solar_system_id = models.IntegerField(primary_key=True, db_column='solarSystemID')
     solar_system_name = models.CharField(max_length=100, db_column='solarSystemName')
     region = models.ForeignKey(Region, on_delete=models.PROTECT, db_column='regionID')
+    sun_type_id = models.IntegerField(db_column='sunTypeID')
     security = models.FloatField()
 
     @property

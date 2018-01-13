@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-import os
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+BASE_DIR = environ.Path(__file__) - 2
+APPS_DIR = BASE_DIR.path('everecon')
 
 
 # Quick-start development settings - unsuitable for production
@@ -39,7 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'bootstrap4',
-    'api.apps.ApiConfig'
+    'everecon.navigate.apps.NavigateConfig',
+    'everecon.common.apps.CommonConfig',
+    'everecon.sde.apps.StaticDataExportConfig'
 ]
 
 MIDDLEWARE = [
@@ -52,15 +57,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'noflyzone.urls'
+ROOT_URLCONF = 'config.urls'
 
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            PROJECT_DIR + '/templates/',
+            str(APPS_DIR.path('templates')),
             ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -74,7 +78,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'noflyzone.wsgi.application'
+OPTIONS={
+    'libraries': {
+        'everecon_tags': 'everecon.templatetags',
+        'admin.urls': 'django.contrib.admin.templatetags.admin_urls',
+    },
+}
+
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
@@ -83,10 +94,9 @@ WSGI_APPLICATION = 'noflyzone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': str(BASE_DIR.path('db.sqlite3')),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -124,7 +134,27 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+STATIC_ROOT = str(BASE_DIR.path('staticfiles'))
+
 STATIC_URL = '/static/'
+
+# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+STATICFILES_DIRS = [
+    str(APPS_DIR.path('static')),
+]
+
+# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 LOGGING = {
     'version': 1,
@@ -155,5 +185,9 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True
         },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        }
     },
 }

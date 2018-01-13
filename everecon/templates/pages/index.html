@@ -1,4 +1,4 @@
-{% extends "partials/base.html" %}
+{% extends "base.html" %}
 
 {% load style_filters %}
 
@@ -86,7 +86,7 @@
 </div>
 
 {% if waypoints %}
-{% include "partials/sys_table.html" %}
+{% include "components/sys_table.html" %}
 {% endif %}
 
 {% endblock %}
@@ -95,12 +95,12 @@
 <script>
   $(function() {
     $("#from_name").autocomplete({
-      source: "/api/systems/",
+      source: "/navigate/systems/",
       minLength: 2
     });
 
     $("#to_name").autocomplete({
-      source: "/api/systems/",
+      source: "/navigate/systems/",
       minLength: 2
     });
 

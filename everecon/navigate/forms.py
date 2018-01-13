@@ -1,6 +1,6 @@
 from django import forms
 
-from api.models import SolarSystem
+from everecon.sde.models import SolarSystem
 
 
 def system_from_name(from_name):

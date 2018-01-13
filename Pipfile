@@ -11,6 +11,7 @@ bravado = "*"
 hermescache = "*"
 aiohttp = "*"
 maya = "*"
+"django-environ" = "*"
 
 [dev-packages]
 

@@ -17,10 +17,10 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 
-from noflyzone import views
+from everecon.navigate import views
 
 urlpatterns = [
     url(r'^$', views.index),
     path('admin/', admin.site.urls),
-    url(r'^api/', include('api.urls'))
+    url(r'^navigate/', include('everecon.navigate.urls'))
 ]

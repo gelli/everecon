@@ -1,13 +1,10 @@
+import asyncio
+import logging
 import timeit
 
-import hermes.backend.dict
-import requests
-import logging
-
-from api.models import SolarSystem
-
 import aiohttp
-import asyncio
+import hermes.backend.dict
+from everecon.sde.models import SolarSystem
 
 cache = hermes.Hermes(hermes.backend.dict.Backend)
 

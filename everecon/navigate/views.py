@@ -1,15 +1,36 @@
-import logging
+# Create your views here.
+import json
 
+import maya
 import requests
+from django.http import HttpResponse
 from django.shortcuts import render
 
-from api.models import SolarSystem, Celestial
-from noflyzone.forms import NavigationForm
-from services import killboard
-import maya
+from everecon.clients import killboard
+from everecon.navigate.forms import NavigationForm
+from everecon.sde.models import SolarSystem, Celestial
+import logging
 
 # Get an instance of a logger
 LOG = logging.getLogger(__name__)
+
+
+def get_systems(request):
+    if request.is_ajax():
+        q = request.GET.get('term', '')
+        systems = SolarSystem.objects.filter(solar_system_name__icontains=q).order_by('solar_system_name')
+        results = []
+        for system in systems[:20]:
+            sys_json = {}
+            sys_json['id'] = system.solar_system_id
+            sys_json['label'] = "%s (%s)" % (system.solar_system_name, system.region.name)
+            sys_json['value'] = system.solar_system_name
+            results.append(sys_json)
+        data = json.dumps(results)
+    else:
+        data = 'fail'
+
+    return HttpResponse(data, 'application/json')
 
 
 class GateCamp(object):
@@ -110,8 +131,8 @@ def index(request):
         if form.is_valid():
             waypoints = calc_route(form.from_system, form.to_system)
 
-        return render(request, 'noflyzone/index.html', {'form': form, 'waypoints': waypoints})
+        return render(request, 'pages/index.html', {'form': form, 'waypoints': waypoints})
     else:
         form = NavigationForm()
 
-    return render(request, 'noflyzone/index.html', {'form': form })
+    return render(request, 'pages/index.html', {'form': form })

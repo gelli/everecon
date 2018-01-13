@@ -4,11 +4,11 @@
   <table class="table table-striped">
     <thead>
     <tr>
-      <th scope="col">#</th>
+      <th scope="col"></th>
       <th scope="col">Region</th>
       <th scope="col">Name</th>
       <th scope="col"></th>
-      <th scope="col">Kills / Pods</th>
+      <th scope="col" class="text-center">Kills / Pods</th>
       <th scope="col">Latest</th>
       <th scope="col">Gate Camps</th>
       <th scope="col"></th>
@@ -16,25 +16,24 @@
     </thead>
     <tbody>
     {% for waypoint in waypoints %}
-      <tr>
-        <td class="{{waypoint.kills.all|severity }}">{{forloop.counter}}</td>
-        <td class="{{waypoint.kills.all|severity }}">{% ifchanged %}{{ waypoint.system.region.name}}{% endifchanged %}</td>
-        <td class="{{waypoint.kills.all|severity }}">
+      <tr class="{{waypoint.kills.all|severity }}">
+        <td><img class="rounded" src="https://imageserver.eveonline.com/Type/{{waypoint.system.sun_type_id}}_32.png" /></td>
+        <td>{% ifchanged %}{{ waypoint.system.region.name}}{% endifchanged %}</td>
+        <td>
           {{ waypoint.system.name }}
         </td>
         <td>
             <span class="badge badge-pill badge-{{waypoint.system.security|floatformat|security}}">
               {{waypoint.system.security|floatformat:1}}
             </span>
-          </div>
         </td>
-        <td class="{{waypoint.kills.all|severity }}">
+        <td class="text-center">
           {% if waypoint.kills.all > 0 %}
             {{waypoint.kills.all}} / {{waypoint.kills.pods}}
           {% endif%}
         </td>
-        <td class="{{waypoint.kills.all|severity }}">{{ waypoint.latest|naturaltime|default_if_none:"" }}</td>
-        <td class="{{waypoint.kills.all|severity }}">
+        <td>{{ waypoint.latest|naturaltime|default_if_none:"" }}</td>
+        <td>
           {% for camp in waypoint.camps.values %}
 
           <a target="_blank" href="https://zkillboard.com/location/{{camp.location.item_id}}" class="btn btn-sm btn-info">
@@ -48,9 +47,10 @@
             <span class="badge badge-primary">{{camp.location.destination.solar_system.name}}:{{camp.kills}}</span> -->
           {% endfor %}
         </td>
-        <td class="{{waypoint.kills.all|severity }}">
+        <td>
           {% if waypoint.kills.all > 0 %}
-            <a class="btn btn-secondary btn-sm" target="_blank" href="https://zkillboard.com/system/{{waypoint.system.solar_system_id}}/"><i class="fa fa-crosshairs" aria-hidden="true"></i></a>
+            <a class="btn btn-secondary btn-sm" target="_blank" href="https://zkillboard.com/system/{{waypoint.system.solar_system_id}}/"><i class="fa fa-crosshairs
+" aria-hidden="true"></i></a>
           <a class="btn btn-secondary btn-sm" target="_blank" href="http://evemaps.dotlan.net/system/{{waypoint.system.solar_system_name}}/"><i class="fa fa-map" aria-hidden="true"></i></i></a>
           {% endif %}
         </td>
