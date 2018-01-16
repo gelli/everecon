@@ -37,7 +37,7 @@
           {% for camp in waypoint.camps.values %}
 
           <a target="_blank" href="https://zkillboard.com/location/{{camp.location.item_id}}" class="btn btn-sm btn-info">
-            {{camp.location.destination.solar_system.name}}
+            {{camp.location.destination_name}}
             <span class="badge badge-light">{{camp.kills}}</span>
             <!-- <span class="badge badge-light">bubble</span>
             <span class="badge badge-light">smart</span> -->

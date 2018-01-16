@@ -27,7 +27,7 @@ class SolarSystem(models.Model):
         return self.solar_system_name
 
     def get_location(self, x, y, z):
-        celestials = Celestial.objects.filter(solar_system_id=self.solar_system_id)
+        celestials = self.celestials.all() # .select_related('item', 'destination')
         distance = None
         location = None
         for celestial in celestials:
@@ -40,6 +40,12 @@ class SolarSystem(models.Model):
                 location = celestial
 
         return location
+
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(self, other.__class__):
+            return self.solar_system_id == other.solar_system_id
+        return False
 
 
 class InvName(models.Model):
@@ -59,7 +65,8 @@ class Celestial(models.Model):
     item = models.OneToOneField(InvName, db_column='itemID', primary_key=True, on_delete=models.PROTECT)
     type_id = models.IntegerField(db_index=True, db_column='typeID')
     group_id = models.IntegerField(db_column='groupID')
-    solar_system = models.ForeignKey(SolarSystem, on_delete=models.PROTECT, db_column='solarSystemID')
+    solar_system = models.ForeignKey(SolarSystem, on_delete=models.PROTECT, db_column='solarSystemID',
+                                     related_name='celestials')
     constellation_id = models.IntegerField(db_index=True, db_column='constellationID')
     region_id = models.IntegerField(db_index=True, db_column='regionID')
     orbit_id = models.IntegerField(db_column='orbitID')
@@ -90,10 +97,19 @@ class StarGate(Celestial):
         proxy = True
 
     @property
-    def destination(self):
-        return Celestial.objects.raw("SELECT d.* FROM mapDenormalize d, mapJumps j "
-                                     "WHERE d.itemID = j.destinationID "
-                                     "AND j.stargateID = {}".format(self.item_id))[0]
+    def destination_name(self):
+        return self.item.itemName[10:-1]
+
+
+class Jump(models.Model):
+    class Meta:
+        managed = False
+        db_table = 'mapJumps'
+
+    stargateID = models.OneToOneField(Celestial, db_column='stargateID', on_delete=models.PROTECT, primary_key=True, related_name='destination')
+    destinationID = models.OneToOneField(Celestial, db_column='destinationID', on_delete=models.PROTECT, related_name='destination+')
+
+
 
 
 CELESTIAL_TYPES = {

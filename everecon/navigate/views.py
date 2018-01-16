@@ -64,7 +64,17 @@ def calc_route(sys_from, sys_to):
     url = 'https://esi.tech.ccp.is/latest/route/{}/{}/?datasource=tranquility&flag=shortest'
 
     r = requests.get(url.format(sys_from.solar_system_id, sys_to.solar_system_id))
-    systems = [SolarSystem.objects.get(solar_system_id=system_id) for system_id in r.json()]
+
+    system_ids = r.json()
+
+    # prefetches all data needed, reduces query count
+    query = SolarSystem.objects.filter(solar_system_id__in=system_ids).prefetch_related('celestials',
+                                                                                        'celestials__item',
+                                                                                        'celestials__destination',
+                                                                                        'region')
+
+    systems = list(query)
+    systems.sort(key=lambda s: system_ids.index(s.solar_system_id))
 
     return get_kills(systems)
 
@@ -84,7 +94,6 @@ https://zkillboard.com/api/solarSystemID/30001198/pastSeconds/7200/kills/
 
 
 def get_kills(systems: list):
-
     events = killboard.get_kills_in_systems(systems)
     waypoints = []
 
@@ -135,4 +144,4 @@ def index(request):
     else:
         form = NavigationForm()
 
-    return render(request, 'pages/index.html', {'form': form })
+    return render(request, 'pages/index.html', {'form': form})
