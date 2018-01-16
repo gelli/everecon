@@ -8,15 +8,31 @@ services:
       - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-  web:
+  web: &django
     build:
       context: .
       dockerfile: ./docker/local/Dockerfile
     depends_on:
       - db
+      - redis
     command: /start.sh
     env_file: .env
     volumes:
       - .:/app
     ports:
       - "8000:8000"
+  redis:
+      image: redis:3.0
+      ports:
+        - "6379:6379"
+      sysctls:
+        - net.core.somaxconn=1024
+
+  celeryworker:
+      # https://github.com/docker/compose/issues/3220
+      <<: *django
+      depends_on:
+        - redis
+        - db
+      ports: []
+      command: /start_celeryworker.sh
