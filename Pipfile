@@ -12,8 +12,14 @@ hermescache = "*"
 aiohttp = "*"
 maya = "*"
 "django-environ" = "*"
+"psycopg2" = "*"
 
 [dev-packages]
+
+"django-extensions" = "*"
+werkzeug = "*"
+"django-debug-toolbar" = "*"
+
 
 [requires]
 python_version = "3.6"
