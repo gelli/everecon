@@ -3,3 +3,6 @@ __pycache__
 /junkyard
 /db.sqlite3
 *.iml
+/pgdata
+/iCloud.nosync
+/.env
