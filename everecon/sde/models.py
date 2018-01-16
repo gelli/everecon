@@ -109,9 +109,6 @@ class Jump(models.Model):
     stargateID = models.OneToOneField(Celestial, db_column='stargateID', on_delete=models.PROTECT, primary_key=True, related_name='destination')
     destinationID = models.OneToOneField(Celestial, db_column='destinationID', on_delete=models.PROTECT, related_name='destination+')
 
-
-
-
 CELESTIAL_TYPES = {
     16: StarGate,
     17: StarGate,
