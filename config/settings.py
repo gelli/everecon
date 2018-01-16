@@ -18,6 +18,7 @@ import environ
 BASE_DIR = environ.Path(__file__) - 2
 APPS_DIR = BASE_DIR.path('everecon')
 
+env = environ.Env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -26,8 +27,7 @@ APPS_DIR = BASE_DIR.path('everecon')
 SECRET_KEY = 'il9#e3!4rr+3eoa1xcoplet5fg_%fo+3=^e#v63i)p=0)z38g^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+DEBUG = env.bool('DJANGO_DEBUG', default=True)
 ALLOWED_HOSTS = []
 
 
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     'everecon.navigate.apps.NavigateConfig',
     'everecon.common.apps.CommonConfig',
-    'everecon.sde.apps.StaticDataExportConfig'
+    'everecon.sde.apps.StaticDataExportConfig',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +78,9 @@ TEMPLATES = [
     },
 ]
 
+
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
+
 OPTIONS={
     'libraries': {
         'everecon_tags': 'everecon.templatetags',
@@ -91,11 +94,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': str(BASE_DIR.path('db.sqlite3')),
+#    }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(BASE_DIR.path('db.sqlite3')),
-    }
+    'default': env.db('DATABASE_URL', default='postgres://everecon:everecon@localhost/everecon'),
+    # 'ATOMIC_REQUESTS': True
 }
 
 # Password validation
@@ -191,3 +199,21 @@ LOGGING = {
         }
     },
 }
+
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar', 'django_extensions', ]
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
+    INTERNAL_IPS = ['127.0.0.1', '10.0.2.2', ]
+    import socket
+    import os
+    # tricks to have debug toolbar when developing with docker
+    if os.environ.get('USE_DOCKER') == 'yes':
+        ip = socket.gethostbyname(socket.gethostname())
+        INTERNAL_IPS += [ip[:-1] + '1']
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'DISABLE_PANELS': [
+            'debug_toolbar.panels.redirects.RedirectsPanel',
+        ],
+        'SHOW_TEMPLATE_CONTEXT': True,
+    }
