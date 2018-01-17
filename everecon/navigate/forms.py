@@ -19,16 +19,12 @@ class NavigationForm(forms.Form):
         to_name = cleaned_data.get("to_name")
 
         if self.is_valid():
-            systems = list(SolarSystem.objects.filter(
-                solar_system_name__iexact=from_name) | SolarSystem.objects.filter(solar_system_name__iexact=to_name))
 
-            systems.sort(key=lambda s: [from_name, to_name].index(s.solar_system_name))
+            # systems = list(SolarSystem.objects.filter(
+            #     solar_system_name__iexact=from_name) | SolarSystem.objects.filter(solar_system_name__iexact=to_name))
+            # systems.sort(key=lambda s: [from_name, to_name].index(s.solar_system_name))
+            # self.from_system, self.to_system = systems
 
-            self.from_system, self.to_system = systems
-
-
-
-            """
             try:
                 self.from_system = SolarSystem.objects.get(solar_system_name__iexact=from_name)
             except SolarSystem.DoesNotExist:
@@ -38,4 +34,3 @@ class NavigationForm(forms.Form):
                 self.to_system = SolarSystem.objects.get(solar_system_name__iexact=to_name)
             except SolarSystem.DoesNotExist:
                 self.add_error('to_name', 'System does not exist')
-                """

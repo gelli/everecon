@@ -1,16 +1,13 @@
 # Create your views here.
 import json
+import logging
 
-import maya
 import requests
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from everecon.clients import killboard
 from everecon.navigate.forms import NavigationForm
-from everecon.navigate.models import Kill
 from everecon.sde.models import SolarSystem, Celestial
-import logging
 
 # Get an instance of a logger
 LOG = logging.getLogger(__name__)
@@ -63,17 +60,13 @@ def calc_route(sys_from, sys_to):
     :type sys_to: SolarSystem
     """
     url = 'https://esi.tech.ccp.is/latest/route/{}/{}/?datasource=tranquility&flag=shortest'
-
     r = requests.get(url.format(sys_from.solar_system_id, sys_to.solar_system_id))
-
     system_ids = r.json()
 
     # prefetches all data needed, reduces query count
-    query = SolarSystem.objects.filter(solar_system_id__in=system_ids).prefetch_related('celestials',
-                                                                                        'celestials__item',
-                                                                                        'celestials__destination',
-                                                                                        'region',
-                                                                                        'kill_set')
+    prefetch = ['region', 'kill_set', 'kill_set__location', 'kill_set__location__destination',
+                'kill_set__location__item']
+    query = SolarSystem.objects.filter(solar_system_id__in=system_ids).prefetch_related(*prefetch)
 
     systems = list(query)
     systems.sort(key=lambda s: system_ids.index(s.solar_system_id))
@@ -81,47 +74,29 @@ def calc_route(sys_from, sys_to):
     return get_kills(systems)
 
 
-"""
-https://zkillboard.com/api/solarSystemID/30001155/solarSystemID/30001156/pastSeconds/7200/kills/
-1
-Fining celestials
-30001155
-location is a stargate!Celestial object (50013602)
-https://zkillboard.com/api/solarSystemID/30001156/pastSeconds/7200/kills/
-0
-https://zkillboard.com/api/solarSystemID/30001162/pastSeconds/7200/kills/
-0
-https://zkillboard.com/api/solarSystemID/30001198/pastSeconds/7200/kills/
-"""
-
-
 def get_kills(systems: list):
-    events = killboard.get_kills_in_systems(systems)
     waypoints = []
 
     for system in systems:
         waypoint = WayPoint(system)
-        event = events[system.solar_system_id]
 
-        db_kills = system.kill_set.count()
+        db_kills = system.kill_set.all()
 
         waypoint.kills = {
-            'all': len(event.kills),
+            'all': db_kills.count(),  # len(event.kills),
             'pods': 0,
             'latest': None,
-            'db': db_kills
+            # 'db': db_kills
         }
 
         latest = None
-        for kill in event.kills:
+        for kill in db_kills:
 
             LOG.debug(kill)
-            coords = kill['victim']['position']
-            location = system.get_location(coords['x'], coords['y'], coords['z'])
+            location = kill.location
+            time = kill.time
 
-            time = maya.parse(kill['killmail_time'])
-
-            if kill['victim']['ship_type_id'] == 670:
+            if kill.ship_type_id == 670:
                 waypoint.kills['pods'] += 1
 
             if latest is None or latest < time:
@@ -132,7 +107,7 @@ def get_kills(systems: list):
                 camp.kills += 1
             else:
                 LOG.debug("Not a stargate")
-        waypoint.latest = latest.datetime() if latest else None
+        waypoint.latest = latest if latest else None
         waypoints.append(waypoint)
 
     return waypoints

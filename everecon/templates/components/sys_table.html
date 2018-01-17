@@ -16,42 +16,45 @@
     </thead>
     <tbody>
     {% for waypoint in waypoints %}
-      <tr class="{{waypoint.kills.all|severity }}">
-        <td><img class="rounded" src="https://imageserver.eveonline.com/Type/{{waypoint.system.sun_type_id}}_32.png" /></td>
-        <td>{% ifchanged %}{{ waypoint.system.region.name}}{% endifchanged %}</td>
+      <tr class="{{ waypoint.kills.all|severity }}">
+        <td><img class="rounded" src="https://imageserver.eveonline.com/Type/{{ waypoint.system.sun_type_id }}_32.png"/>
+        </td>
+        <td>{% ifchanged %}{{ waypoint.system.region.name }}{% endifchanged %}</td>
         <td>
           {{ waypoint.system.name }}
         </td>
         <td>
-            <span class="badge badge-pill badge-{{waypoint.system.security|floatformat|security}}">
-              {{waypoint.system.security|floatformat:1}}
+            <span class="badge badge-pill badge-{{ waypoint.system.security|floatformat|security }}">
+              {{ waypoint.system.security|floatformat:1 }}
             </span>
         </td>
         <td class="text-center">
           {% if waypoint.kills.all > 0 %}
-            {{waypoint.kills.all}} / {{waypoint.kills.db}}
-          {% endif%}
+            {{ waypoint.kills.all }} / {{ waypoint.kills.pods }}
+          {% endif %}
         </td>
         <td>{{ waypoint.latest|naturaltime|default_if_none:"" }}</td>
         <td>
           {% for camp in waypoint.camps.values %}
-
-          <a target="_blank" href="https://zkillboard.com/location/{{camp.location.item_id}}" class="btn btn-sm btn-info">
-            {{camp.location.destination_name}}
-            <span class="badge badge-light">{{camp.kills}}</span>
-            <!-- <span class="badge badge-light">bubble</span>
-            <span class="badge badge-light">smart</span> -->
-          </a>
-
-          <!-- https://zkillboard.com/location/50008963/
-            <span class="badge badge-primary">{{camp.location.destination.solar_system.name}}:{{camp.kills}}</span> -->
+            <a target="_blank" href="https://zkillboard.com/location/{{ camp.location.item_id }}"
+               class="btn btn-sm btn-info">
+              {{ camp.location.destination_name }}
+              <span class="badge badge-light">{{ camp.kills }}</span>
+              <!-- <span class="badge badge-light">bubble</span>
+              <span class="badge badge-light">smart</span> -->
+            </a>
           {% endfor %}
         </td>
         <td>
           {% if waypoint.kills.all > 0 %}
-            <a class="btn btn-secondary btn-sm" target="_blank" href="https://zkillboard.com/system/{{waypoint.system.solar_system_id}}/"><i class="fa fa-crosshairs
-" aria-hidden="true"></i></a>
-          <a class="btn btn-secondary btn-sm" target="_blank" href="http://evemaps.dotlan.net/system/{{waypoint.system.solar_system_name}}/"><i class="fa fa-map" aria-hidden="true"></i></i></a>
+            <a class="btn btn-secondary btn-sm" target="_blank"
+               href="https://zkillboard.com/system/{{ waypoint.system.solar_system_id }}/">
+              <i class="fa fa-crosshairs" aria-hidden="true"></i>
+            </a>
+            <a class="btn btn-secondary btn-sm" target="_blank"
+               href="http://evemaps.dotlan.net/system/{{ waypoint.system.solar_system_name }}/">
+              <i class="fa fa-map" aria-hidden="true"></i>
+            </a>
           {% endif %}
         </td>
       </tr>
