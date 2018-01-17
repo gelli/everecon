@@ -8,8 +8,12 @@ def system_from_name(from_name):
 
 
 class NavigationForm(forms.Form):
+    _CHOICES = (('shortest', 'shortest',), ('secure', 'secure',), ('insecure', 'insecure',))
     from_name = forms.CharField(widget=forms.TextInput(attrs={'id': 'from_name', 'placeholder': 'From'}))
     to_name = forms.CharField(widget=forms.TextInput(attrs={'id': 'to_name', 'placeholder': 'To'}))
+    prefer = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+                               choices=_CHOICES,
+                               initial='shortest')
     from_system = None
     to_system = None
 
@@ -17,6 +21,7 @@ class NavigationForm(forms.Form):
         cleaned_data = super().clean()
         from_name = cleaned_data.get("from_name")
         to_name = cleaned_data.get("to_name")
+        self.prefer = cleaned_data.get("prefer")
 
         if self.is_valid():
 

@@ -54,13 +54,13 @@ class WayPoint(object):
         return self.camps.setdefault(camp.location.item_id, camp)
 
 
-def calc_route(sys_from, sys_to):
+def calc_route(sys_from, sys_to, flag):
     """
     :type sys_from: SolarSystem
     :type sys_to: SolarSystem
     """
-    url = 'https://esi.tech.ccp.is/latest/route/{}/{}/?datasource=tranquility&flag=shortest'
-    r = requests.get(url.format(sys_from.solar_system_id, sys_to.solar_system_id))
+    url = 'https://esi.tech.ccp.is/latest/route/{}/{}/?datasource=tranquility&flag={}'
+    r = requests.get(url.format(sys_from.solar_system_id, sys_to.solar_system_id, flag))
     system_ids = r.json()
 
     # prefetches all data needed, reduces query count
@@ -119,7 +119,7 @@ def index(request):
         form = NavigationForm(request.POST)
         waypoints = None
         if form.is_valid():
-            waypoints = calc_route(form.from_system, form.to_system)
+            waypoints = calc_route(form.from_system, form.to_system, form.prefer)
 
         return render(request, 'pages/index.html', {'form': form, 'waypoints': waypoints})
     else:
