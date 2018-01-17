@@ -8,6 +8,7 @@ from django.shortcuts import render
 
 from everecon.clients import killboard
 from everecon.navigate.forms import NavigationForm
+from everecon.navigate.models import Kill
 from everecon.sde.models import SolarSystem, Celestial
 import logging
 
@@ -71,7 +72,8 @@ def calc_route(sys_from, sys_to):
     query = SolarSystem.objects.filter(solar_system_id__in=system_ids).prefetch_related('celestials',
                                                                                         'celestials__item',
                                                                                         'celestials__destination',
-                                                                                        'region')
+                                                                                        'region',
+                                                                                        'kill_set')
 
     systems = list(query)
     systems.sort(key=lambda s: system_ids.index(s.solar_system_id))
@@ -100,10 +102,14 @@ def get_kills(systems: list):
     for system in systems:
         waypoint = WayPoint(system)
         event = events[system.solar_system_id]
+
+        db_kills = system.kill_set.count()
+
         waypoint.kills = {
             'all': len(event.kills),
             'pods': 0,
-            'latest': None
+            'latest': None,
+            'db': db_kills
         }
 
         latest = None

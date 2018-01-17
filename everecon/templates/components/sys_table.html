@@ -29,7 +29,7 @@
         </td>
         <td class="text-center">
           {% if waypoint.kills.all > 0 %}
-            {{waypoint.kills.all}} / {{waypoint.kills.pods}}
+            {{waypoint.kills.all}} / {{waypoint.kills.db}}
           {% endif%}
         </td>
         <td>{{ waypoint.latest|naturaltime|default_if_none:"" }}</td>
