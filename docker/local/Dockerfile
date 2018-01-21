@@ -13,7 +13,7 @@ RUN chmod +x /start_celeryworker.sh
 
 WORKDIR /app
 
-RUN pip install pipenv
+RUN pip install pipenv -q
 RUN pipenv install --dev
 
 ENTRYPOINT ["docker/entrypoint.sh"]
