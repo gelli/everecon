@@ -22,7 +22,7 @@ services:
     ports:
       - "8000:8000"
   redis:
-      image: redis:3.0
+      image: redis
       ports:
         - "6379:6379"
       sysctls:
