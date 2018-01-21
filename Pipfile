@@ -15,6 +15,7 @@ maya = "*"
 "psycopg2" = "*"
 celery = "*"
 redis = "*"
+"django-active-link" = "*"
 
 [dev-packages]
 

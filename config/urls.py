@@ -21,9 +21,10 @@ from django.urls import include, path
 from everecon.navigate import views
 
 urlpatterns = [
-    url(r'^$', views.index),
+    url(r'^$', views.index, name='index'),
     path('admin/', admin.site.urls),
-    url(r'^navigate/', include('everecon.navigate.urls'))
+    url(r'^navigate/', include('everecon.navigate.urls')),
+    url(r'^auth/', include('everecon.sso.urls'))
 ]
 
 if settings.DEBUG:

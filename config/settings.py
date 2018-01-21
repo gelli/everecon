@@ -43,9 +43,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'bootstrap4',
+    'active_link',
     'everecon.navigate.apps.NavigateConfig',
     'everecon.common.apps.CommonConfig',
-    'everecon.sde.apps.StaticDataExportConfig'
+    'everecon.sde.apps.StaticDataExportConfig',
+    'everecon.sso.apps.SSOConfig'
 ]
 
 MIDDLEWARE = [
@@ -103,12 +105,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # }
 
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgres://everecon:everecon@db/everecon'),
+    'default': env.db('DATABASE_URL', default='postgres://everecon:everecon@localhost/everecon'),
     # 'ATOMIC_REQUESTS': True
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'everecon.sso.backends.EveSSOBackend'
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -184,7 +192,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'noflyzone': {
+        'everecon': {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True

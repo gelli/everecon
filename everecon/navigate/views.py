@@ -1,16 +1,16 @@
 # Create your views here.
 import json
 import logging
-
 import requests
-from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-
+from django.db import connection
 from everecon.navigate.forms import NavigationForm
-from everecon.sde.models import SolarSystem, Celestial
+from everecon.sde.models import SolarSystem, Celestial, SolarSystemJump
 
 # Get an instance of a logger
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('everecon')
 
 
 def get_systems(request):
@@ -113,8 +113,7 @@ def get_kills(systems: list):
     return waypoints
 
 
-def index(request):
-    LOG.info("Called request")
+def index(request: HttpRequest):
     if request.method == 'POST':
         form = NavigationForm(request.POST)
         waypoints = None
@@ -126,3 +125,32 @@ def index(request):
         form = NavigationForm()
 
     return render(request, 'pages/index.html', {'form': form})
+
+
+@login_required(login_url='login')
+def around(request: HttpRequest):
+    headers = {"Authorization": "Bearer {}".format(request.session['token'])}
+    r = requests.get('https://esi.tech.ccp.is/latest/characters/{}/location/'.format(request.user.id), headers=headers)
+
+    location = r.json()
+
+    system_id = int(location['solar_system_id'])
+    system_id_list = [system_id]
+
+    with connection.cursor() as cursor:
+        cursor.execute('select s."solarSystemID" from "mapSolarSystems" s, "mapSolarSystemJumps" j '
+                       'where s."solarSystemID" = j."toSolarSystemID" '
+                       'and j."fromSolarSystemID" = {}'.format(system_id))
+
+        [system_id_list.append(row[0]) for row in cursor.fetchall() ]
+
+    prefetch = ['region', 'kill_set', 'kill_set__location', 'kill_set__location__destination',
+                'kill_set__location__item']
+    systems = SolarSystem.objects.filter(solar_system_id__in=system_id_list).prefetch_related(*prefetch)
+
+
+    kills = get_kills(systems)
+
+    current = next(filter(lambda sys: sys.solar_system_id == system_id,  systems))
+    print(current)
+    return render(request, 'pages/around.html', {'current': current, 'waypoints': kills})

@@ -109,6 +109,18 @@ class Jump(models.Model):
     stargateID = models.OneToOneField(Celestial, db_column='stargateID', on_delete=models.PROTECT, primary_key=True, related_name='destination')
     destinationID = models.OneToOneField(Celestial, db_column='destinationID', on_delete=models.PROTECT, related_name='destination+')
 
+
+class SolarSystemJump(models.Model):
+    class Meta:
+        managed = False
+        db_table = 'mapSolarSystemJumps'
+        unique_together = (('from_system', 'to_system'),)
+
+    from_system = models.ForeignKey(SolarSystem, on_delete=models.PROTECT, db_column='fromSolarSystemID',
+                                        related_name='jumps')
+    to_system = models.ForeignKey(SolarSystem, on_delete=models.PROTECT, db_column='toSolarSystemID',
+                                      related_name='jumps_reverse')
+
 CELESTIAL_TYPES = {
     16: StarGate,
     17: StarGate,

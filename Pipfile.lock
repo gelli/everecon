@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c4060def5ffcbf3f5a56d952efecdbceb9281d62c2bebf3389a37e90a3e1f345"
+            "sha256": "817f7f1755fff1fe6946a5544e65679001b4d8b2b169d77e697f44b574a12c37"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -31,21 +31,15 @@
     "default": {
         "aiohttp": {
             "hashes": [
-                "sha256:8b2c9b1f43e12fe8837455ce4caf3a8621c3ab474219f11bd0270ca1c0735fc7",
-                "sha256:6a12fa57d0608da29060c6fac531d049317422eecb23f509f8fae5b9a24c5b79",
-                "sha256:b7b5a4e34d3a4d9ecce4aa9e172a0fd13c8f5acee46afeb5944c4489f71701c1",
-                "sha256:37b62fa71369f2d6c9828d427b9a22829d603943a915fab216a99fc98447342b",
-                "sha256:b67b4238498225db921911f873e4b6959d51de55d7b71ced8e902aed9d6ff2aa",
-                "sha256:48a798891ec157049f6b02e8ed1909e09c35aa03a29a90006215b8fb936185c4",
-                "sha256:709ef5e6172b58cadb6575509baf7dacd97504911b54a654ab74f728f764249d",
-                "sha256:9ca64837c9a6d66543c1b49e6f04132ef9f2683377fe28f2497b7152e9d3c312",
-                "sha256:afec8fd2a464f8837cf019a26c52271d65f72512ae8ef2c05217086230fa50f1",
-                "sha256:e81997b2fb4b7f19a80257aa2bb6e35e521d62dcf595599bf34886b115607bad",
-                "sha256:536e9b6d1f8c1ebc44af530879c41fa0204369b5d2257bd1995534faacefad92",
-                "sha256:335c1ac277784eb6ba3d3b4e6901b06df3c5c93926026c594c4fdb61e270542d",
-                "sha256:56fd240c9eb3bc09c081ca2e5b677be433ac84657b13ac29bc8deb16ba0b4f0b"
+                "sha256:796799259fe67ea08eeb19c943413bb56f928baab6ed8b2f277ed8e6e7af2d3d",
+                "sha256:e7889bd10537dc68619be691d52ba7f5d36b72767d6f8b2993ef6ae441198bcd",
+                "sha256:2569c8a84ed26dd33f5c66073029e65138c2d91231c311260802e48ec1beadb8",
+                "sha256:27e8816bb5315c3c70e9e39ac9bfe1479f1f59d40f9d1897a7965485357b1b8a",
+                "sha256:cca71a105218f45b15cac5be4a6b823cb09fe48774ff8359ae719bec29967752",
+                "sha256:e34422ad362da7ce4d3fc71ca1ff42d7fef63204b601b49a12062cfa14121129",
+                "sha256:6003bed78dc591d31bd89ef16e630a1c4fd97a3cd17b975ec945c0f46d6fc881"
             ],
-            "version": "==2.3.8"
+            "version": "==2.3.9"
         },
         "amqp": {
             "hashes": [
@@ -77,10 +71,10 @@
         },
         "bravado-core": {
             "hashes": [
-                "sha256:1d541fb912e9fac97e799ce2762c2a819252b38c05098046ad07474875d55679",
-                "sha256:0c21ea810f9218e2ff55e0ee6dfb2bd1e466b34821eae6271272b199451c26bc"
+                "sha256:8df6719ce5a89de7e5b075756f89dc12c49b8ba925ef0abf9547ca7dd11e018b",
+                "sha256:89826b68da27b73acba0486c56d5118f9eff9637dc995e24aa29eaddd6ce5e0a"
             ],
-            "version": "==4.11.2"
+            "version": "==4.11.3"
         },
         "celery": {
             "hashes": [
@@ -116,6 +110,13 @@
                 "sha256:d96b804be412a5125a594023ec524a2010a6ffa4d408e5482ab6ff3cb97ec12f"
             ],
             "version": "==2.0.1"
+        },
+        "django-active-link": {
+            "hashes": [
+                "sha256:a2b1a96de3f72d97f565742f562560240df14670adad45ba482c283b8ce66edc",
+                "sha256:754428a6d4ae05ed122f4b14233c8f0fa7047c3425a6f1d7de7153a89472f5de"
+            ],
+            "version": "==0.1.2"
         },
         "django-bootstrap4": {
             "hashes": [
@@ -199,6 +200,7 @@
                 "sha256:a61a984d976c0f7ee392fc56c79faeeacf40df1bfed6d313959a63b2f7e14709",
                 "sha256:805cd5be68cf30c479ad8eb236e091ca04025298b95093624c79da92f3589b53",
                 "sha256:c1c8e1d9e6997376a7bc90795f337bda9cebef2286954434487d30618e0a5fcd",
+                "sha256:aec53c2f6e48bc08fe3e68da2a24cf890b74cf3d95d9f796ee1bf459c13d9837",
                 "sha256:42c4164f5e1674ba4f99ada9a02023dc2e38f3646434a43eaa1502a47b511baa",
                 "sha256:336cdd64fe55344042ea72552e5c09b85632592e2aa532e58faf344a66d60c70",
                 "sha256:b1451f2043af5e540cb7d1d75edb9493e0c6ffee860b6e86cc76d4280b7481de",
