@@ -16,6 +16,9 @@ maya = "*"
 celery = "*"
 redis = "*"
 "django-active-link" = "*"
+"django-redis-cache" = "*"
+channels = "*"
+"asgi-redis" = "*"
 
 [dev-packages]
 

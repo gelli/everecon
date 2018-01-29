@@ -96,7 +96,7 @@ def get_kills(systems: list):
             location = kill.location
             time = kill.time
 
-            if kill.ship_type_id == 670:
+            if kill.ship_id == 670:
                 waypoint.kills['pods'] += 1
 
             if latest is None or latest < time:
@@ -148,9 +148,11 @@ def around(request: HttpRequest):
                 'kill_set__location__item']
     systems = SolarSystem.objects.filter(solar_system_id__in=system_id_list).prefetch_related(*prefetch)
 
-
     kills = get_kills(systems)
 
     current = next(filter(lambda sys: sys.solar_system_id == system_id,  systems))
     print(current)
     return render(request, 'pages/around.html', {'current': current, 'waypoints': kills})
+
+def live(request: HttpRequest):
+    return render(request, 'pages/live.html')

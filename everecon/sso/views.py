@@ -8,7 +8,10 @@ def callback(request: HttpRequest):
         return redirect('index')
 
     capsuleer = authenticate(request, code=request.GET['code'])
-    login(request, capsuleer)
+
+    if capsuleer is not None:
+        login(request, capsuleer)
+
     return redirect('index')
 
 

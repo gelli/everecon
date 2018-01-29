@@ -4,5 +4,6 @@ from everecon.navigate import views
 
 urlpatterns = [
     url(r'^systems/', views.get_systems),
-    url(r'^around/', views.around, name='around')
+    url(r'^around/', views.around, name='around'),
+    url(r'^live/', views.live, name='live')
 ]

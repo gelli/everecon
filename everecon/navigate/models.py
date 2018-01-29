@@ -1,7 +1,7 @@
 import maya
 from django.db import models
 
-from everecon.sde.models import Celestial, SolarSystem
+from everecon.sde.models import Celestial, SolarSystem, Ship
 
 
 class Kill(models.Model):
@@ -66,20 +66,32 @@ class Kill(models.Model):
     time = models.DateTimeField(db_index=True)
     location = models.ForeignKey(Celestial, db_index=True, on_delete=models.PROTECT)
     solar_system = models.ForeignKey(SolarSystem, db_index=True, on_delete=models.PROTECT)
-    ship_type_id = models.IntegerField()
+    ship = models.ForeignKey(Ship, db_index=True, on_delete=models.PROTECT)
+    # ship_type_id = models.IntegerField()
+    victim_character_id = models.IntegerField()
+    victim_corporation_id = models.IntegerField(null=True)
+    victim_alliance_id = models.IntegerField(null=True)
+
 
     @classmethod
     def from_json(cls, json):
         if json['package'] is None:
             return None
 
+        victim = json['package']['killmail']['victim']
+        package = json['package']
+
         kill = Kill()
-        kill.kill_id = json['package']['killID']
-        kill.time = maya.parse(json['package']['killmail']['killmail_time']).datetime()
-        kill.location_id = json['package']['zkb']['locationID']
-        kill.solar_system_id = json['package']['killmail']['solar_system_id']
-        kill.ship_type_id = json['package']['killmail']['victim']['ship_type_id']
+        kill.kill_id = package['killID']
+        kill.time = maya.parse(package['killmail']['killmail_time']).datetime()
+        kill.location_id = package['zkb']['locationID']
+        kill.solar_system_id = package['killmail']['solar_system_id']
+        kill.ship_id = victim['ship_type_id']
+        kill.victim_character_id = victim['character_id']
+        kill.victim_corporation_id = victim['corporation_id'] if 'corporation_id' in victim else None
+        kill.victim_alliance_id = victim['alliance_id'] if 'alliance_id' in victim else None
         return kill
 
     def __str__(self):
-        return 'Kill<id=%d, time=%s, location=%s, solar_system=%s, ship_type=%s>' % (self.kill_id, self.time, self.location_id, self.solar_system_id, self.ship_type_id)
+        return 'Kill<id=%d, time=%s, location=%s, solar_system=%s, ship_type=%s>' % (
+        self.kill_id, self.time, self.location_id, self.solar_system_id, self.ship_id)

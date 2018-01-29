@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'bootstrap4',
     'active_link',
+    'channels',
     'everecon.navigate.apps.NavigateConfig',
     'everecon.common.apps.CommonConfig',
     'everecon.sde.apps.StaticDataExportConfig',
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',  # This must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',  # This must be last
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -166,12 +169,8 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-    }
-}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 LOGGING = {
     'version': 1,
@@ -212,6 +211,7 @@ LOGGING = {
 # CELERY STUFF
 CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -224,6 +224,21 @@ CELERY_BEAT_SCHEDULE = {
  # }
 }
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis', 6379)],
+        },
+        'ROUTING': 'everecon.navigate.routing.channel_routing',
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
 
 if DEBUG:
     INSTALLED_APPS += ['debug_toolbar', 'django_extensions', ]
@@ -242,3 +257,15 @@ if DEBUG:
         ],
         'SHOW_TEMPLATE_CONTEXT': True,
     }
+else:
+    CACHES = {
+        'default': {
+            # 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            # 'LOCATION': 'unique-snowflake',
+            'BACKEND': 'redis_cache.RedisCache',
+            'LOCATION': [
+                'redis:6379'
+            ]
+        }
+    }
+

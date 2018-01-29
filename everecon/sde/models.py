@@ -121,6 +121,17 @@ class SolarSystemJump(models.Model):
     to_system = models.ForeignKey(SolarSystem, on_delete=models.PROTECT, db_column='toSolarSystemID',
                                       related_name='jumps_reverse')
 
+
+class Ship(models.Model):
+    class Meta:
+        managed = False
+        db_table = 'invTypes'
+
+    id = models.IntegerField(primary_key=True, db_column='typeID')
+    name = models.CharField(max_length=100, db_column='typeName')
+    description = models.TextField()
+
+
 CELESTIAL_TYPES = {
     16: StarGate,
     17: StarGate,

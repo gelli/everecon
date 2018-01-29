@@ -1,8 +1,10 @@
-from requests.auth import HTTPBasicAuth
-
+import logging
+from django.core.cache import cache
+from everecon.clients import ccp
+from everecon.clients.ccp import CCPException
 from everecon.sso.models import Capsuleer
 
-import requests
+logger = logging.getLogger(__name__)
 
 # http://localhost:8000/auth/callback?code=NKCz5d2jj_F-OsLnJIPwWPMRa64knpPDtnzra2Ov0P55xZ6sx1rQhIEUkCLGt-k40
 # b'{"access_token":"yiv2vyUQMcXuGcrAy71TUCDgMfAobUovFLt9kM4-Bo5hnuC0VqtA1DQXmJaCoab8AxYTxrIOoaE1YdS4DTjkww2","token_type":"Bearer","expires_in":1198,"refresh_token":null}'
@@ -16,21 +18,19 @@ class EveSSOBackend(object):
         if code is None:
             return None
 
-        content = {
-            "grant_type": "authorization_code",
-            "code": code
-        }
+        try:
+            client = ccp.EveSSO('27487b15c8c540a2b446484b3dcd877f', 'mUtBkexcohG7iYnDDSP9ihWerPlJ8MRtxch42xKf')
+            token = client.login(code)
+            print(token)
 
-        r = requests.post('https://login.eveonline.com/oauth/token', json=content, auth=HTTPBasicAuth('27487b15c8c540a2b446484b3dcd877f', 'mUtBkexcohG7iYnDDSP9ihWerPlJ8MRtxch42xKf'))
-        token = r.json()
-        print(token)
+            request.session['token'] = token['access_token']
 
-        request.session['token'] = token['access_token']
-        headers = {"Authorization":"Bearer {}".format(token['access_token'])}
-        r = requests.get('https://login.eveonline.com/oauth/verify', headers=headers)
-        auth_data = r.json()
+            auth_data = client.verify(token['access_token'])
 
-        print(auth_data)
+            print(auth_data)
+        except CCPException as e:
+            logging.error(e)
+            return None
 
 
         try:
@@ -43,7 +43,12 @@ class EveSSOBackend(object):
         return capsuleer
 
     def get_user(self, user_id):
-        try:
-            return Capsuleer.objects.get(pk=user_id)
-        except Capsuleer.DoesNotExist:
-            return None
+        capsuleer = cache.get('cached_auth_capsuleer:%s' % user_id)
+
+        if capsuleer is None:
+            try:
+                capsuleer = Capsuleer.objects.get(pk=user_id)
+                cache.set('cached_auth_capsuleer:%s' % user_id, capsuleer)
+            except Capsuleer.DoesNotExist:
+                return None
+        return capsuleer
