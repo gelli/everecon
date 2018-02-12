@@ -14,7 +14,6 @@ hermescache = "*"
 aiohttp = "*"
 maya = "*"
 django-environ = "*"
-"psycopg2" = "*"
 celery = "*"
 redis = "*"
 django-active-link = "*"
@@ -22,6 +21,7 @@ django-redis-cache = "*"
 channels = "*"
 graphviz = "*"
 channels-redis = "*"
+"psycopg2-binary" = "*"
 
 
 [dev-packages]

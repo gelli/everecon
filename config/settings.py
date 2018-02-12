@@ -65,7 +65,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -87,7 +86,7 @@ TEMPLATES = [
 
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
-OPTIONS={
+OPTIONS = {
     'libraries': {
         'everecon_tags': 'everecon.templatetags',
         'admin.urls': 'django.contrib.admin.templatetags.admin_urls',
@@ -226,19 +225,31 @@ CELERY_BEAT_SCHEDULE = {
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             'hosts': [('redis', 6379)],
-        },
-        'ROUTING': 'everecon.navigate.routing.channel_routing',
+        }
     }
 }
 
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#    }
+#}
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        # 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        # 'LOCATION': 'unique-snowflake',
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': [
+            'redis:6379'
+        ]
     }
 }
+
+ASGI_APPLICATION = "config.routing.application"
 
 if DEBUG:
     INSTALLED_APPS += ['debug_toolbar', 'django_extensions', ]

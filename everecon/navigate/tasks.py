@@ -1,9 +1,11 @@
+import asyncio
 import datetime
 import json
 
 import maya
+from asgiref.sync import AsyncToSync
 from celery.schedules import crontab
-from channels import Group
+from channels.layers import get_channel_layer
 from django.db import IntegrityError
 
 from everecon import celery_app as app
@@ -17,6 +19,7 @@ UUID = 'c598d921-3bc0-40ad-846d-bd6c24823b08'
 
 @app.on_after_finalize.connect
 def setup(sender, **kwargs):
+    print("setting up celery tasks")
     killboard_redisq.apply_async(countdown=10)
     sender.add_periodic_task(crontab(minute='*/5'), clear_kills.s())
 
@@ -39,11 +42,27 @@ def clear_kills():
     time = datetime.datetime.now() - datetime.timedelta(minutes=60)
     Kill.objects.filter(time__lt=time).delete()
 
+
+def update_clients(channel, text):
+    """
+    TODO: Using an own event loop is a hack
+    See: https://github.com/django/channels/issues/859
+    """
+    channel_layer = get_channel_layer()
+
+    loop = asyncio.get_event_loop()
+
+    coroutine = channel_layer.group_send(channel, {
+        'type': 'users.message',
+        'text': text
+    })
+    loop.run_until_complete(coroutine)
+
+
 @task
 def killboard_redisq():
 
     while True:
-
         try:
             r = requests.get('https://redisq.zkillboard.com/listen.php?queueID={}&ttw=1'.format(UUID))
 
@@ -78,26 +97,26 @@ def killboard_redisq():
 
             if maya.now().subtract(minutes=5).datetime() < kill.time:
                 print('sending kill to websocket')
-                Group('users').send({
-                    'text': json.dumps({
-                        'id': kill.kill_id,
-                        'time': str(kill.time),
-                        'location': kill.location.name,
-                        'system': kill.solar_system.name,
-                        'ship_id': kill.ship_id,
-                        'ship': kill.ship.name,
-                        'victim': {
-                            'id': kill.victim_character_id,
-                            'name': victim_name,
-                            'corp_id': kill.victim_corporation_id,
-                            'corp': victim_corp,
-                            'alliance_id': kill.victim_alliance_id,
-                            'alliance': victim_alliance
-                        }
-                    })
-                })
+
+                update_clients('users', json.dumps({
+                    'id': kill.kill_id,
+                    'time': str(kill.time),
+                    'location': kill.location.name,
+                    'system': kill.solar_system.name,
+                    'ship_id': kill.ship_id,
+                    'ship': kill.ship.name,
+                    'victim': {
+                        'id': kill.victim_character_id,
+                        'name': victim_name,
+                        'corp_id': kill.victim_corporation_id,
+                        'corp': victim_corp,
+                        'alliance_id': kill.victim_alliance_id,
+                        'alliance': victim_alliance
+                    }
+                }))
         except (KeyError, IntegrityError) as e:
             # ship_type_id was null once
+            print('Got error when trying to get kill from API')
             print(e)
 
     killboard_redisq.apply_async(countdown=30)
