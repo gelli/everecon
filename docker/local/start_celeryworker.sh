@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 set -o xtrace
 
-pipenv run celery -A everecon worker -l INFO -B
+pipenv run celery -A everecon worker -l INFO -B -E
