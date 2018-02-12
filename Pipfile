@@ -1,7 +1,9 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
+
 
 [packages]
 
@@ -11,21 +13,24 @@ bravado = "*"
 hermescache = "*"
 aiohttp = "*"
 maya = "*"
-"django-environ" = "*"
+django-environ = "*"
 "psycopg2" = "*"
 celery = "*"
 redis = "*"
-"django-active-link" = "*"
-"django-redis-cache" = "*"
+django-active-link = "*"
+django-redis-cache = "*"
 channels = "*"
-"asgi-redis" = "*"
+graphviz = "*"
+channels-redis = "*"
+
 
 [dev-packages]
 
-"django-extensions" = "*"
+django-extensions = "*"
 werkzeug = "*"
-"django-debug-toolbar" = "*"
+django-debug-toolbar = "*"
 
 
 [requires]
+
 python_version = "3.6"
