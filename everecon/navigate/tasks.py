@@ -20,8 +20,9 @@ UUID = 'c598d921-3bc0-40ad-846d-bd6c24823b08'
 @app.on_after_finalize.connect
 def setup(sender, **kwargs):
     print("setting up celery tasks")
-    killboard_redisq.apply_async(countdown=10)
+    # killboard_redisq.apply_async(countdown=10)
     sender.add_periodic_task(crontab(minute='*/5'), clear_kills.s())
+    sender.add_periodic_task(10.0, killboard_redisq.s())
 
 
 def get_character(character_id):
@@ -61,7 +62,6 @@ def update_clients(channel, text):
 
 @task
 def killboard_redisq():
-
     while True:
         try:
             r = requests.get('https://redisq.zkillboard.com/listen.php?queueID={}&ttw=1'.format(UUID))

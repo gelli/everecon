@@ -5,11 +5,31 @@
 
 {% block content %}
 
+
+  <style type="text/css">
+    #testsigma {
+      max-width: 600px;
+      height: 300px;
+      margin: auto;
+      margin-bottom:0
+    }
+  </style>
+  <div class="jumbotron" style="padding-bottom:1rem">
+    <div class="container">
+
+      <h1>Systems around me</h1>
+      {% if current %}
+        <p><strong>Current System:</strong> {{ current.name }}</p>
+      {% endif %}
+
+      <div id="testsigma">
+      </div>
+
+    </div>
+  </div>
+
   <div class="container">
-  <h1>Systems around me</h1>
-  {% if current %}
-    <p><strong>Current System:</strong> {{ current.name }}</p>
-  {% endif %}
+
   {% if waypoints %}
     {% include "components/sys_table.html" %}
   {% endif %}
@@ -17,3 +37,50 @@
 
 {%  endblock %}
 
+{% block scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.1/sigma.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.1/plugins/sigma.parsers.json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.1/plugins/sigma.layout.forceAtlas2.min.js"></script>
+
+  <script>
+    sigma.parsers.json('/navigate/sigma/data/', {
+      type: 'canvas',
+      container: 'testsigma',
+      settings: {
+        defaultNodeColor: '#000',
+        sideMargin: 4,
+        enableCamera: false
+      }
+    }, function(s) {
+      // this is needed in case the original JSON doesn't have color / size / x-y attributes
+      var i,
+        nodes = s.graph.nodes(),
+        len = nodes.length;
+
+      for (i = 0; i < len; i++) {
+        nodes[i].x = Math.random();
+        nodes[i].y = Math.random();
+        nodes[i].size = 1 // s.graph.degree(nodes[i].id);
+        nodes[i].color = nodes[i].center ? '#333' : '#666';
+      }
+
+      // Refresh the display:
+      s.refresh();
+      s.startForceAtlas2({
+        worker: true,
+        barnesHutOptimize: false,
+        edgeWeightInfluence: 0,
+        scalingRatio: 1,
+        startingIterations: 500,
+        strongGravityMode: false,
+        adjustSizes: false,
+        outboundAttractionDistribution: false,
+        linLogMode: false
+      });
+
+      setTimeout(function() { s.stopForceAtlas2(); }, 1000)
+      console.log("force")
+    });
+    console.log("executed")
+  </script>
+{% endblock %}

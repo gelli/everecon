@@ -17,11 +17,12 @@ django-environ = "*"
 celery = "*"
 redis = "*"
 django-active-link = "*"
-django-redis-cache = "*"
 channels = "*"
 graphviz = "*"
 channels-redis = "*"
 "psycopg2-binary" = "*"
+django-redis = "*"
+python-redis-lock = {extras = ["django"]}
 
 
 [dev-packages]

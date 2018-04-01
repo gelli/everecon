@@ -4,7 +4,6 @@ ENV PYTHONUNBUFFERED 1
 
 RUN mkdir /app
 
-ADD . /app/
 ADD docker/local/start.sh /start.sh
 RUN chmod +x /start.sh
 

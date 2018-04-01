@@ -21,13 +21,16 @@ class SolarSystem(models.Model):
     region = models.ForeignKey(Region, on_delete=models.PROTECT, db_column='regionID')
     sun_type_id = models.IntegerField(db_column='sunTypeID')
     security = models.FloatField()
+    x = models.IntegerField()
+    y = models.IntegerField()
+    z = models.IntegerField()
 
     @property
     def name(self):
         return self.solar_system_name
 
     def get_location(self, x, y, z):
-        celestials = self.celestials.all() # .select_related('item', 'destination')
+        celestials = self.celestials.all()  # .select_related('item', 'destination')
         distance = None
         location = None
         for celestial in celestials:
@@ -40,6 +43,18 @@ class SolarSystem(models.Model):
                 location = celestial
 
         return location
+
+    def get_adjacent_systems(self, jumps):
+        return SolarSystem.objects.raw(
+            'WITH RECURSIVE systems(from_id, to_id, start_id, distance) AS ( '
+            'SELECT "fromSolarSystemID", "toSolarSystemID", "fromSolarSystemID", 1 AS distance '
+            'FROM "mapSolarSystemJumps" WHERE "fromSolarSystemID" = %s UNION ALL '
+            'SELECT nxt."fromSolarSystemID", nxt."toSolarSystemID", prv.start_id, prv.distance + 1 '
+            'FROM "mapSolarSystemJumps" nxt JOIN systems prv ON nxt."fromSolarSystemID" = prv.to_id WHERE distance < %s'
+            ') SELECT  m.*, min(p.distance) AS distance FROM systems p '
+            'LEFT JOIN "mapSolarSystems" m ON m."solarSystemID" = p.to_id '
+            'WHERE start_id = %s GROUP BY m."regionID", m."constellationID", m."solarSystemID" ',
+            params=(self.solar_system_id, jumps, self.solar_system_id))
 
     def __eq__(self, other):
         """Overrides the default implementation"""

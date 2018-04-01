@@ -21,13 +21,13 @@ class EveSSOBackend(object):
         try:
             client = ccp.EveSSO('27487b15c8c540a2b446484b3dcd877f', 'mUtBkexcohG7iYnDDSP9ihWerPlJ8MRtxch42xKf')
             token = client.login(code)
-            print(token)
+            logger.debug(token)
 
             request.session['token'] = token['access_token']
 
             auth_data = client.verify(token['access_token'])
 
-            print(auth_data)
+            logger.debug(auth_data)
         except CCPException as e:
             logging.error(e)
             return None

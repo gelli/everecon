@@ -52,7 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.cache.UpdateCacheMiddleware',  # This must be first
+    # 'django.middleware.cache.UpdateCacheMiddleware',  # This must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,7 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',  # This must be last
+    # 'django.middleware.cache.FetchFromCacheMiddleware',  # This must be last
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -173,8 +173,8 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
-    'formatters':{
+    'disable_existing_loggers': True,
+    'formatters': {
         'verbose': {
             'format': '%(asctime)s %(levelname)s %(module)s %(process)d %(thread)d %(message)s'
         },
@@ -232,22 +232,19 @@ CHANNEL_LAYERS = {
     }
 }
 
-#CACHES = {
-#    'default': {
-#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-#    }
-#}
-
 CACHES = {
     'default': {
         # 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         # 'LOCATION': 'unique-snowflake',
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': [
-            'redis:6379'
-        ]
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/0',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+        }
     }
 }
+
+CACHE_MIDDLEWARE_SECONDS = 5
 
 ASGI_APPLICATION = "config.routing.application"
 
@@ -268,15 +265,3 @@ if DEBUG:
         ],
         'SHOW_TEMPLATE_CONTEXT': True,
     }
-else:
-    CACHES = {
-        'default': {
-            # 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            # 'LOCATION': 'unique-snowflake',
-            'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': [
-                'redis:6379'
-            ]
-        }
-    }
-

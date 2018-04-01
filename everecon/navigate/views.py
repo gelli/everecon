@@ -1,13 +1,15 @@
 # Create your views here.
 import json
 import logging
+
 import requests
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.db import connection
+
 from everecon.navigate.forms import NavigationForm
-from everecon.sde.models import SolarSystem, Celestial, SolarSystemJump
+from everecon.sde.models import SolarSystem, Celestial
 
 # Get an instance of a logger
 LOG = logging.getLogger('everecon')
@@ -137,12 +139,9 @@ def around(request: HttpRequest):
     system_id = int(location['solar_system_id'])
     system_id_list = [system_id]
 
-    with connection.cursor() as cursor:
-        cursor.execute('select s."solarSystemID" from "mapSolarSystems" s, "mapSolarSystemJumps" j '
-                       'where s."solarSystemID" = j."toSolarSystemID" '
-                       'and j."fromSolarSystemID" = {}'.format(system_id))
+    adjacent = SolarSystem.objects.get(pk=system_id).get_adjacent_systems(3)
 
-        [system_id_list.append(row[0]) for row in cursor.fetchall() ]
+    [system_id_list.append(row.solar_system_id) for row in adjacent]
 
     prefetch = ['region', 'kill_set', 'kill_set__location', 'kill_set__location__destination',
                 'kill_set__location__item']
@@ -154,5 +153,68 @@ def around(request: HttpRequest):
     print(current)
     return render(request, 'pages/around.html', {'current': current, 'waypoints': kills})
 
+
 def live(request: HttpRequest):
     return render(request, 'pages/live.html')
+
+
+def sigma(request: HttpRequest):
+    print('Called SIGMA')
+    return render(request, 'pages/sigma.html')
+
+
+def sigma_json(request):
+    headers = {"Authorization": "Bearer {}".format(request.session['token'])}
+    r = requests.get('https://esi.tech.ccp.is/latest/characters/{}/location/'.format(request.user.id), headers=headers)
+
+    location = r.json()
+
+    system_id = int(location['solar_system_id'])
+    system_id_list = [system_id]
+
+    adjacent = SolarSystem.objects.get(pk=system_id).get_adjacent_systems(3)
+
+    [system_id_list.append(row.solar_system_id) for row in adjacent]
+
+    prefetch = ['region', 'kill_set', 'kill_set__location', 'kill_set__location__destination',
+                'kill_set__location__item']
+    systems = SolarSystem.objects.filter(solar_system_id__in=system_id_list).prefetch_related(*prefetch)
+
+    nodes = []
+    edges = []
+    types = {}
+
+    for sys in systems:
+        nodes.append({
+            'id': sys.solar_system_id,
+            'label': sys.solar_system_name,
+            'type': 'square',
+            'x': sys.x,
+            'y': sys.z,
+            'size': 1,
+            'color': '#007bff'
+        })
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            'SELECT "fromSolarSystemID", "toSolarSystemID" '
+            'FROM "mapSolarSystemJumps" WHERE "fromSolarSystemID" = ANY(%s)',
+            [system_id_list])
+
+        edge_id = 0
+        for row in cursor.fetchall():
+            if row[1] in system_id_list:
+                edges.append({
+                    'id': edge_id,
+                    'source': row[0],
+                    'target': row[1]
+                })
+                edge_id += 1
+
+    print("called sigma_json")
+    data = json.dumps({
+        "nodes": nodes,
+        "edges": edges
+    })
+
+    return HttpResponse(data, 'application/json')
